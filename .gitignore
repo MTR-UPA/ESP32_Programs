@@ -1,0 +1,23 @@
+# Ignorar todas las carpetas de compilación
+**/build/
+
+# Ignorar configuraciones de VSCode
+**/.vscode/
+
+# Ignorar configuraciones de devcontainer
+**/.devcontainer/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos temporales de compilación de ESP-IDF
+*.elf
+*.map
+*.bin
+*.bin.S
+*.s
+*.o
