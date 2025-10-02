@@ -28,12 +28,12 @@ void app_main(void)
 	i2c_master_init(&dev, GPIO_NUM_21, GPIO_NUM_22, GPIO_NUM_15);
 
 
-	ESP_LOGI(tag, "Panel is 128x64 putito");
+	ESP_LOGI(tag, "Panel is 128x64");
 	ssd1306_init(&dev, 128, 64);
 	
 	ssd1306_clear_screen(&dev, false);
 	ssd1306_contrast(&dev, 0x0f);
-	ssd1306_display_text_x3(&dev, 3, "Puto", 5, false);
+	ssd1306_display_text_x3(&dev, 3, "Hi!!", 5, false);
 	vTaskDelay(pdMS_TO_TICKS(5000));
 	ssd1306_fadeout(&dev);
 
