@@ -1,3 +1,10 @@
+/* Programa principal para manejar la pantalla OLED */
+/* La libreria ssd1306.h fue modificada a  partir del trabajo realizado por: 
+https://github.com/voidlooprobotech/ESP32_ESP-IDF_Code
+Se ajusta la libreria para solo usar I2C y se maneja la pantalla como un componente
+de ESP-IDF.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
