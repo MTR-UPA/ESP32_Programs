@@ -1,3 +1,3 @@
 
-#Programa para el manejo de la pantalla OLED I2C
+# Programa para el manejo de la pantalla OLED I2C
 
