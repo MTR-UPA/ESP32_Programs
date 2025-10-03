@@ -14,6 +14,10 @@ Thumbs.db
 # Archivos de logs
 *.log
 
+#Archivos sdkconfig
+sdkconfig
+sdkaconfig.ci
+
 # Archivos temporales de compilación de ESP-IDF
 *.elf
 *.map
