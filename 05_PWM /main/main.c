@@ -54,6 +54,9 @@ void app_main(void) // Función principal de la aplicación
     configureGpio(); // Configura los pines GPIO
     setupPWM(); // Configura el PWM 
 
+    gpio_set_level(AIN1, 1); // Establece AIN1 en alto
+    gpio_set_level(AIN2, 0); // Establece AIN2 en
+
 
     while(1) // Bucle infinito
     {
@@ -70,7 +73,7 @@ void app_main(void) // Función principal de la aplicación
         {
             ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, i, 0);     // Actualiza el duty cycle
             printf("Duty: %d\n", i); // Imprime el valor actual del duty cycle
-            vTaskDelay(pdMS_TO_TICKS(10)); // Espera 10 ms
+            vTaskDelay(pdMS_TO_TICKS(100)); // Espera 10 ms
         }
     }
 }
