@@ -5,3 +5,5 @@ Con este programa aprenderemos a leer una entrada de tipo análoga y convertirla
 ![Conexión ADC](./img/ADC_Con.png)
 
 ## Ejercicio 1.
+Crea un programa para leer dos entradas analógicas al mismo tiempo.
+
