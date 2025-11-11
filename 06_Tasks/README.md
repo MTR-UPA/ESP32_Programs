@@ -12,4 +12,4 @@ Crea un programa que tenga dos tareas:
 
 2. La segunda tarea es controlar el sentido de giro y velocidad de un motor de CD siguiendo la siguiente regla:  
    - Si el valor del ADC está entre **0 y 2048**, el motor gira en **sentido horario** a una velocidad proporcional.  
-   - Si el valor del ADC está entre **2049 y 4095**, el motor gira en **sentido antihorario** a una velocidad proporcional.
+   - Si el valor del ADC está entre **2049 y 4095**, el motor gira en **sentido antihorario** a una velocidad proporcional
