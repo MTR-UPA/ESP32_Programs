@@ -9,7 +9,7 @@
 #define AZUL GPIO_NUM_16                // Pin para LED azul
 
 // Constantes de tiempo para las tareas (milisegundos)
-#define TIEMPO_TASK1 500                // Duración encendido/apagado del LED rojo
+#define TIEMPO_TASK1 500               // Duración encendido/apagado del LED rojo
 #define TIEMPO_TASK2 1000               // Duración encendido/apagado del LED verde
 #define TIEMPO_TASK3 1500               // Duración encendido/apagado del LED azul
 
@@ -70,7 +70,7 @@ void app_main(void)
     configIO();                                     // Inicializar GPIO
 
     // Crear las tres tareas con stack de 2048 bytes y prioridad 1
-    xTaskCreatePinnedToCore(RojoTask, "Tarea Rojo", 2048, NULL, 1, NULL, 0);
+    xTaskCreatePinnedToCore(RojoTask, "Tarea Rojo", 4096, NULL, 1, NULL, 0);
     xTaskCreatePinnedToCore(VerdeTask, "Tarea Verde", 2048, NULL, 1, NULL, 1);
     xTaskCreatePinnedToCore(AzulTask, "Tarea Azul", 2048, NULL, 1, NULL, 1);
 }
