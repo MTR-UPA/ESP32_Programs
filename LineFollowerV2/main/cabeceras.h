@@ -2,12 +2,14 @@
 
 #include "driver/gpio.h"       //Maned GPIO pins
 #include "freertos/FreeRTOS.h" // FreeRTOS API
+#include "QTR8A.h"
+
 #include "freertos/task.h"     // FreeRTOS task management
 #include "driver/ledc.h"       // PWM CONTROL
 #include "esp_log.h"           // ESP-IDF logging
-#include "QTR8A.h"             // QTR8A library for handling sensors
-#include "nvs_flash.h"      // NVS flash memory EEPROM  
-#include "nvs.h"            // NVS library EEPROM
+             // QTR8A library for handling sensors
+//#include "nvs_flash.h"      // NVS flash memory EEPROM  
+//#include "nvs.h"            // NVS library EEPROM
 
 #include <cstring>
 #include <ctype.h>
