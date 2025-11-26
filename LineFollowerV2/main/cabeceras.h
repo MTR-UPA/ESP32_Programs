@@ -11,6 +11,9 @@
 //#include "nvs_flash.h"      // NVS flash memory EEPROM  
 //#include "nvs.h"            // NVS library EEPROM
 
+#include "driver/ledc.h" // Incluye el controlador para LEDC (PWM)
+
+
 #include <cstring>
 #include <ctype.h>
 

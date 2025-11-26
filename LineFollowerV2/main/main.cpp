@@ -84,12 +84,93 @@ void getMaxMinCal(){
     printf("\n");
 }
 
+esp_err_t moveMotors(int16_t leftSpeed, int16_t rightSpeed)
+{
+    // Left motor
+    if (leftSpeed > 0) {
+        gpio_set_level(AIN1, 1);
+        gpio_set_level(AIN2, 0);
+    } else if (leftSpeed < 0) {
+        gpio_set_level(AIN1, 0);
+        gpio_set_level(AIN2, 1);
+        leftSpeed = -leftSpeed;
+    } else {
+        gpio_set_level(AIN1, 0);
+        gpio_set_level(AIN2, 0);
+    }
+    //TODO: Enviar señal PWM al motor izquierdo
+
+    // Right motor
+    if (rightSpeed > 0) {
+        gpio_set_level(BIN1, 1);
+        gpio_set_level(BIN2, 0);
+    } else if (rightSpeed < 0) {
+        gpio_set_level(BIN1, 0);
+        gpio_set_level(BIN2, 1);
+        rightSpeed = -rightSpeed;
+    } else {
+        gpio_set_level(BIN1, 0);
+        gpio_set_level(BIN2, 0);
+    }
+    //TODO: Enviar señal PWM al motor derecho
+    ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, leftSpeed, 0); // Actualiza el duty cycle
+    ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, rightSpeed, 0); // Actualiza el duty cycle
+
+    return ESP_OK;
+}
+
+
+void setupPWM(void)
+{
+    // Configuración del canal PWM
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT, // Resolución de 8 bits
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 5000, // Frecuencia de 5 kHz
+        .clk_cfg = LEDC_AUTO_CLK,
+        .deconfigure = false // No desconfigurar el temporizador
+    };
+    ledc_timer_config(&ledc_timer);
+
+
+    // Configuración del canal B
+    ledc_channel_config_t ledc_channel_B = {
+        .gpio_num = PWMB, // Primero el GPIO
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 0,
+        .hpoint = 0,
+        .sleep_mode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD, // Deshabilitar el modo de sueño
+        .flags = {
+            .output_invert = 0 // No invertir la salida
+        }};
+    ledc_channel_config(&ledc_channel_B);
+
+    ledc_fade_func_install(0); // Instala la función de desvanecimiento
+}
+
+void pruebaMotores(void)
+{
+    printf("Probando motores...\n");
+    moveMotors(150, 150); // Mover ambos motores hacia adelante a velocidad 150
+    vTaskDelay(pdMS_TO_TICKS(2000)); // Esperar 2 segundos
+    
+    moveMotors(0, 0); // Detener ambos motores
+    printf("Prueba de motores finalizada.\n");
+}
+
 extern "C" void app_main(void)
 {
     printf("Iniciando programa...\n");
     configureGpio();
     createSensor();
-    
+    setupPWM();
+
+    pruebaMotores();
+
     while(gpio_get_level(CAL) == 1) //  Boton sin presionar
     {
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -102,12 +183,15 @@ extern "C" void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
+
     while(1){
         position = sensor.readLineBlack(sensor_values);
         for(int i = 0; i < SENSOR_COUNT; i++)
             printf("%d\t", sensor_values[i]);
         printf("P: %d\n", position);
         vTaskDelay(pdMS_TO_TICKS(100));
+
+
     }
 
     
