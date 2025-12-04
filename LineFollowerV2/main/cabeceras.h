@@ -7,9 +7,6 @@
 #include "freertos/task.h"     // FreeRTOS task management
 #include "driver/ledc.h"       // PWM CONTROL
 #include "esp_log.h"           // ESP-IDF logging
-             // QTR8A library for handling sensors
-//#include "nvs_flash.h"      // NVS flash memory EEPROM  
-//#include "nvs.h"            // NVS library EEPROM
 
 #include "driver/ledc.h" // Incluye el controlador para LEDC (PWM)
 

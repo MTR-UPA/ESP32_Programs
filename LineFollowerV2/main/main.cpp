@@ -1,15 +1,20 @@
 #include "cabeceras.h"
+#include "BT.h"
+
+BT bt;
 QTR8A sensor;
 uint16_t sensor_values[SENSOR_COUNT];
 uint16_t position;
+
+bool start_bt = false;
+bool cal_bt = false;
 
 //void leerLinea(){}
 //void control(){}
 //void moverse(){}
 
-static const char *TAG = "ESP";
-static const char *NVS = "MEM";
-static const char *BOTON = "CAL";
+static const char *TAG1 = "ESP";
+float KP = 0.2;
 
 bool calibrationLoaded = false;
 
@@ -162,6 +167,71 @@ void pruebaMotores(void)
     printf("Prueba de motores finalizada.\n");
 }
 
+
+static void tarea_bluetooth(void *pvParameters)
+{
+    // Intentar hasta que esté conectado
+    while (!bt.connectedToBluetooth())
+    {
+        bt.connectToBluetooth();
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+
+    // Ya conectado: eliminar la propia tarea para no seguir intentándolo
+    vTaskDelete(NULL);
+}
+
+void procesar_datos_bluetooth(const char* data, int len)
+{
+    if (data == NULL || len <= 0) return;
+  
+    // Crear copia sin salto de línea
+    char comando[len + 1];
+    memcpy(comando, data, len);
+    comando[len] = '\0';
+    
+    // Remover salto de línea si existe
+    if (comando[len - 1] == '\n') {
+        comando[len - 1] = '\0';
+    }
+    if (comando[len - 2] == '\r') {
+        comando[len - 2] = '\0';
+    }
+    
+    // Procesar comandos
+
+    if (strcmp(comando, "START") == 0) {
+        ESP_LOGI(TAG1, "Comando: INICIAR");
+        start_bt = true;
+    }
+    else if (strcmp(comando, "CAL") == 0) {
+        ESP_LOGI(TAG1, "Comando: CALIBRAR");
+        cal_bt = true;
+    } 
+    else if (strcmp(comando, "STOP") == 0) {
+        ESP_LOGI(TAG1, "Comando: DETENER");
+    }
+    else if (strncmp(comando, "KP", 2) == 0) {
+        const char* p = comando + 2; // después de "KP"
+        if (*p != '\0') {
+            char *endptr = nullptr;
+            float val = strtof(p, &endptr);
+            if (endptr != p) {
+                KP = val;
+                ESP_LOGI(TAG1, "Comando: KP - Ajustando KP a %f", KP);
+            } else {
+                ESP_LOGW(TAG1, "Valor de KP inválido: %s", p);
+            }
+        } else {
+            ESP_LOGW(TAG1, "Comando KP sin valor");
+        }
+    }
+    else {
+        ESP_LOGW(TAG1, "Comando desconocido: %s", comando);
+    }
+}
+
+
 extern "C" void app_main(void)
 {
     printf("Iniciando programa...\n");
@@ -169,20 +239,28 @@ extern "C" void app_main(void)
     createSensor();
     setupPWM();
 
-    pruebaMotores();
+        srand((unsigned) xTaskGetTickCount());
 
-    while(gpio_get_level(CAL) == 1) //  Boton sin presionar
+     //Inicia la tarea de conexion bluetooth
+    bt.set_data_callback(procesar_datos_bluetooth);
+    xTaskCreatePinnedToCore(tarea_bluetooth, "tarea_bluetooth", 4096, NULL, 1, NULL, 1);
+    
+
+
+    while(gpio_get_level(CAL) == 1 && !cal_bt) //  Boton sin presionar
     {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
     calibrateSensor();
     getMaxMinCal();
+    cal_bt = false;
+    gpio_set_level(AZUL, 1);
     
-    while(gpio_get_level(CAL) == 1) //  Boton sin presionar
+    while(gpio_get_level(CAL) == 1 && !start_bt) //  Boton sin presionar
     {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
-
+    
 
     while(1){
         position = sensor.readLineBlack(sensor_values);
