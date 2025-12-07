@@ -1,8 +1,8 @@
-#include "BT.h"
+#include "BTL.h"
 
 static const char *TAG = "BT_SERIAL";
 
-static BT* s_bt_instance = nullptr;
+static BTL* s_bt_instance = nullptr;
 
 static void spp_callback_wrapper(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
@@ -12,7 +12,7 @@ static void spp_callback_wrapper(esp_spp_cb_event_t event, esp_spp_cb_param_t *p
 
 
 // the destructor frees up allocated memory
-BT::~BT()
+BTL::~BTL()
 {
   _connected = false;
   s_bt_instance = nullptr;
@@ -20,13 +20,13 @@ BT::~BT()
 
 /* Mantener el handle de la conexión SPP */
 
-void BT::bt_set_spp_handle(uint32_t handle)
+void BTL::bt_set_spp_handle(uint32_t handle)
 {
     _spp_conn_handle = handle;
 }
 
 /* Enviar datos binarios por SPP */
-esp_err_t BT::bt_send_data(uint8_t *data, int len)
+esp_err_t BTL::bt_send_data(uint8_t *data, int len)
 {
     if (_spp_conn_handle == 0)
     {
@@ -37,20 +37,20 @@ esp_err_t BT::bt_send_data(uint8_t *data, int len)
 }
 
 /* Enviar una cadena C terminada en '\0' */
-esp_err_t BT::bt_send_string(const char *str)
+esp_err_t BTL::bt_send_string(const char *str)
 {
     if (str == NULL) return ESP_ERR_INVALID_ARG;
     int len = (int)strlen(str);
     return bt_send_data((uint8_t *)str, len);
 }
 
-void BT::spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
+void BTL::spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
     
     switch (event)
     {
     case ESP_SPP_INIT_EVT:
-        esp_bt_dev_set_device_name("robot");
+        esp_bt_dev_set_device_name("anaya");
         esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, "SPP_SERVER");
         ESP_LOGI(TAG, "Bluetooth listo");
         break;
@@ -76,7 +76,7 @@ void BT::spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     }
 }
 
-void BT::connectToBluetooth()
+void BTL::connectToBluetooth()
 {
     esp_err_t ret;
     // Inicializar NVS
@@ -151,13 +151,13 @@ void BT::connectToBluetooth()
     _connected = true;
 }
 
-bool BT::connectedToBluetooth()
+bool BTL::connectedToBluetooth()
 {
     return _connected;
 }
 
 /* Recibir datos por SPP */
-void BT::spp_data_received(uint8_t *data, int len)
+void BTL::spp_data_received(uint8_t *data, int len)
 {
     if (data == NULL || len <= 0) return;
     

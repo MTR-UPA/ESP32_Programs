@@ -1,17 +1,13 @@
 #include "cabeceras.h"
-#include "BT.h"
+#include "BTL.h"
 
-BT bt;
+BTL bt;
 QTR8A sensor;
 uint16_t sensor_values[SENSOR_COUNT];
 uint16_t position;
 
 bool start_bt = false;
 bool cal_bt = false;
-
-//void leerLinea(){}
-//void control(){}
-//void moverse(){}
 
 static const char *TAG1 = "ESP";
 float KP = 0.2;
@@ -246,7 +242,7 @@ extern "C" void app_main(void)
     xTaskCreatePinnedToCore(tarea_bluetooth, "tarea_bluetooth", 4096, NULL, 1, NULL, 1);
     
 
-
+    printf("%d \n", cal_bt);
     while(gpio_get_level(CAL) == 1 && !cal_bt) //  Boton sin presionar
     {
         vTaskDelay(pdMS_TO_TICKS(10));

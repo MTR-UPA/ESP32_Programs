@@ -9,11 +9,11 @@
 
 typedef void (*data_callback_t)(const char* data, int len);
 
-class BT
+class BTL
 {
 public:
-    BT() = default;
-    ~BT();
+    BTL() = default;
+    ~BTL();
     void bt_set_spp_handle(uint32_t handle);
     esp_err_t bt_send_data(uint8_t *data, int len);
     esp_err_t bt_send_string(const char *str);
