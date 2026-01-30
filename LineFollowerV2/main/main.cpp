@@ -10,7 +10,7 @@ bool start_bt = false;
 bool cal_bt = false;
 
 static const char *TAG1 = "ESP";
-float KP = 0.2;
+float KP = 0.2; 
 
 bool calibrationLoaded = false;
 
@@ -55,8 +55,8 @@ esp_err_t createSensor(void)
     sensor.setTimeout(2500);        // Set the timeout for Analog sensors
     sensor.setSamplesPerSensor(15); // Set the number of samples per sensor
     sensor.setEmitterPin(IR);       // Set the emitter pin for the sensor
-    sensor.calibrate();                // Calibrate the sensor with emitters on
-    return ESP_OK; // Return success
+    sensor.calibrate();             // Calibrate the sensor with emitters on
+    return ESP_OK;                  // Return success
 }
 
 esp_err_t calibrateSensor(void)
@@ -76,7 +76,8 @@ esp_err_t calibrateSensor(void)
     return ESP_OK; // Return success
 }
 
-void getMaxMinCal(){
+void getMaxMinCal()
+{
     for (int i = 0; i < SENSOR_COUNT; i++)
         printf("%d\t", sensor.calibrationOn.minimum[i]);
     printf("\n");
@@ -88,38 +89,47 @@ void getMaxMinCal(){
 esp_err_t moveMotors(int16_t leftSpeed, int16_t rightSpeed)
 {
     // Left motor
-    if (leftSpeed > 0) {
+    if (leftSpeed > 0)
+    {
         gpio_set_level(AIN1, 1);
         gpio_set_level(AIN2, 0);
-    } else if (leftSpeed < 0) {
+    }
+    else if (leftSpeed < 0)
+    {
         gpio_set_level(AIN1, 0);
         gpio_set_level(AIN2, 1);
         leftSpeed = -leftSpeed;
-    } else {
+    }
+    else
+    {
         gpio_set_level(AIN1, 0);
         gpio_set_level(AIN2, 0);
     }
-    //TODO: Enviar señal PWM al motor izquierdo
+    // TODO: Enviar señal PWM al motor izquierdo
 
     // Right motor
-    if (rightSpeed > 0) {
+    if (rightSpeed > 0)
+    {
         gpio_set_level(BIN1, 1);
         gpio_set_level(BIN2, 0);
-    } else if (rightSpeed < 0) {
+    }
+    else if (rightSpeed < 0)
+    {
         gpio_set_level(BIN1, 0);
         gpio_set_level(BIN2, 1);
         rightSpeed = -rightSpeed;
-    } else {
+    }
+    else
+    {
         gpio_set_level(BIN1, 0);
         gpio_set_level(BIN2, 0);
     }
-    //TODO: Enviar señal PWM al motor derecho
-    ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, leftSpeed, 0); // Actualiza el duty cycle
+    // TODO: Enviar señal PWM al motor derecho
+    ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, leftSpeed, 0);  // Actualiza el duty cycle
     ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, rightSpeed, 0); // Actualiza el duty cycle
 
     return ESP_OK;
 }
-
 
 void setupPWM(void)
 {
@@ -133,7 +143,6 @@ void setupPWM(void)
         .deconfigure = false // No desconfigurar el temporizador
     };
     ledc_timer_config(&ledc_timer);
-
 
     // Configuración del canal B
     ledc_channel_config_t ledc_channel_B = {
@@ -156,13 +165,12 @@ void setupPWM(void)
 void pruebaMotores(void)
 {
     printf("Probando motores...\n");
-    moveMotors(150, 150); // Mover ambos motores hacia adelante a velocidad 150
+    moveMotors(150, 150);            // Mover ambos motores hacia adelante a velocidad 150
     vTaskDelay(pdMS_TO_TICKS(2000)); // Esperar 2 segundos
-    
+
     moveMotors(0, 0); // Detener ambos motores
     printf("Prueba de motores finalizada.\n");
 }
-
 
 static void tarea_bluetooth(void *pvParameters)
 {
@@ -177,56 +185,69 @@ static void tarea_bluetooth(void *pvParameters)
     vTaskDelete(NULL);
 }
 
-void procesar_datos_bluetooth(const char* data, int len)
+void procesar_datos_bluetooth(const char *data, int len)
 {
-    if (data == NULL || len <= 0) return;
-  
+    if (data == NULL || len <= 0)
+        return;
+
     // Crear copia sin salto de línea
     char comando[len + 1];
     memcpy(comando, data, len);
     comando[len] = '\0';
-    
+
     // Remover salto de línea si existe
-    if (comando[len - 1] == '\n') {
+    if (comando[len - 1] == '\n')
+    {
         comando[len - 1] = '\0';
     }
-    if (comando[len - 2] == '\r') {
+    if (comando[len - 2] == '\r')
+    {
         comando[len - 2] = '\0';
     }
-    
+
     // Procesar comandos
 
-    if (strcmp(comando, "START") == 0) {
+    if (strcmp(comando, "START") == 0)
+    {
         ESP_LOGI(TAG1, "Comando: INICIAR");
         start_bt = true;
     }
-    else if (strcmp(comando, "CAL") == 0) {
+    else if (strcmp(comando, "CAL") == 0)
+    {
         ESP_LOGI(TAG1, "Comando: CALIBRAR");
         cal_bt = true;
-    } 
-    else if (strcmp(comando, "STOP") == 0) {
+    }
+    else if (strcmp(comando, "STOP") == 0)
+    {
         ESP_LOGI(TAG1, "Comando: DETENER");
     }
-    else if (strncmp(comando, "KP", 2) == 0) {
-        const char* p = comando + 2; // después de "KP"
-        if (*p != '\0') {
+    else if (strncmp(comando, "KP", 2) == 0)
+    {
+        const char *p = comando + 2; // después de "KP"
+        if (*p != '\0')
+        {
             char *endptr = nullptr;
             float val = strtof(p, &endptr);
-            if (endptr != p) {
+            if (endptr != p)
+            {
                 KP = val;
                 ESP_LOGI(TAG1, "Comando: KP - Ajustando KP a %f", KP);
-            } else {
+            }
+            else
+            {
                 ESP_LOGW(TAG1, "Valor de KP inválido: %s", p);
             }
-        } else {
+        }
+        else
+        {
             ESP_LOGW(TAG1, "Comando KP sin valor");
         }
     }
-    else {
+    else
+    {
         ESP_LOGW(TAG1, "Comando desconocido: %s", comando);
     }
 }
-
 
 extern "C" void app_main(void)
 {
@@ -235,15 +256,14 @@ extern "C" void app_main(void)
     createSensor();
     setupPWM();
 
-        srand((unsigned) xTaskGetTickCount());
+    srand((unsigned)xTaskGetTickCount());
 
-     //Inicia la tarea de conexion bluetooth
+    // Inicia la tarea de conexion bluetooth
     bt.set_data_callback(procesar_datos_bluetooth);
     xTaskCreatePinnedToCore(tarea_bluetooth, "tarea_bluetooth", 4096, NULL, 1, NULL, 1);
-    
 
     printf("%d \n", cal_bt);
-    while(gpio_get_level(CAL) == 1 && !cal_bt) //  Boton sin presionar
+    while (gpio_get_level(CAL) == 1 && !cal_bt) //  Boton sin presionar
     {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -251,22 +271,18 @@ extern "C" void app_main(void)
     getMaxMinCal();
     cal_bt = false;
     gpio_set_level(AZUL, 1);
-    
-    while(gpio_get_level(CAL) == 1 && !start_bt) //  Boton sin presionar
+
+    while (gpio_get_level(CAL) == 1 && !start_bt) //  Boton sin presionar
     {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
-    
 
-    while(1){
+    while (1)
+    {
         position = sensor.readLineBlack(sensor_values);
-        for(int i = 0; i < SENSOR_COUNT; i++)
+        for (int i = 0; i < SENSOR_COUNT; i++)
             printf("%d\t", sensor_values[i]);
         printf("P: %d\n", position);
         vTaskDelay(pdMS_TO_TICKS(100));
-
-
     }
-
-    
 }
