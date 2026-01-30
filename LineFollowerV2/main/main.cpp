@@ -12,6 +12,7 @@ bool cal_bt = false;
 static const char *TAG1 = "ESP";
 float KP = 0.2; 
 
+
 bool calibrationLoaded = false;
 
 esp_err_t configureGpio(void)
